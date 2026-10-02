@@ -1,0 +1,10 @@
+<aside class="side">
+  <div class="box"><h3>Latest posts</h3><ul>
+    {% for p in site.posts limit:6 %}
+    <li><a href="{{ p.url | relative_url }}">{{ p.title }}</a><small>{{ p.date | date: "%B %-d, %Y" }}</small></li>
+    {% endfor %}
+  </ul></div>
+  <div class="box"><h3>Tags</h3><div class="tags">
+    {% for t in site.tags %}<a href="{{ '/tags/' | relative_url }}#{{ t[0] | slugify }}">{{ t[0] }} ({{ t[1].size }})</a>{% endfor %}
+  </div></div>
+</aside>
