@@ -1,7 +1,7 @@
 ---
 title: "Migrating to Defender for Endpoint: Removing Third-Party Antivirus Safely"
-tags: [Defender-for-Endpoint, Antivirus, EDR, Migration, Infrastructure]
-series: defender
+tags: [Defender-for-Endpoint, Antivirus, EDR, Migration, Infrastructure, GreenField]
+series: Defender
 part: 1
 ---
 ![Series](https://img.shields.io/badge/Series-Microsoft%20Defender%20XDR-0078D4?style=flat-square&logo=microsoft)
