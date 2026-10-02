@@ -1,6 +1,6 @@
 ---
 title: "Migrating to Defender for Endpoint: Removing Third-Party Antivirus Safely"
-tags: [Defender-for-Endpoint, Antivirus, EDR, Migration, Infrastructure]
+tags: [Defender-for-Endpoint, Antivirus, EDR, Migration, Infrastructure, GreenFieldDeployment]
 series: defender
 part: 1
 image: /assets/img/social-part1.png
@@ -9,7 +9,7 @@ image: /assets/img/social-part1.png
 ![Part](https://img.shields.io/badge/Part-1%20of%205-0078D4?style=flat-square)
 [![LinkedIn](https://img.shields.io/badge/Connect-LinkedIn-0A66C2?style=flat-square&logo=linkedin)](https://www.linkedin.com/in/saibhargavamamidala/)
 
-Replacing an antivirus or EDR product sounds deceptively simple: *install the new agent, remove the old one.*
+Replacing an Antivirus or EDR product sounds deceptively simple: *install the new agent, remove the old one.*
 
 In practice, the biggest risk is the gap between the two. Devices can end up with two active security products competing for the same resources, which causes performance problems or instability. Or they end up unprotected if the legacy agent is removed before Defender for Endpoint (MDE) is fully working.
 
@@ -24,8 +24,8 @@ A migration follows three phases: **Prepare → Set up → Onboard and switch**.
 | Phase | What happens |
 |---|---|
 | 1. Prepare | Inventory devices and uninstall passwords, get licences and portal roles, set mutual exclusions |
-| 2. Set up | Deploy Defender baselines with ASR rules in audit mode, then handle passive mode (automatic on clients, manual on servers) |
-| 3. Onboard and switch | Onboard a pilot group, verify telemetry, disable legacy tamper protection, uninstall the legacy agent, confirm Defender is active, run an EICAR test |
+| 2. Set up | Deploy Defender baselines (ASR rules in Audit mode, Network Protection in Block mode, SmartScreen enabled), then handle passive mode (automatic on clients, manual on servers) |
+| 3. Onboard and switch | Onboard a pilot group, verify telemetry, disable legacy tamper protection, uninstall the legacy agent, confirm Defender is active (ASR and Network Protection start enforcing now), run an EICAR test, then move ASR rules from Audit to Block |
 
 ---
 
@@ -72,11 +72,15 @@ Running two real-time agents together can slow machines down, because both try t
 Configure your target baseline before onboarding devices, not after:
 
 - 🛡️ **Antivirus policy:** turn on cloud-delivered protection and set update schedules
-- 🔒 **Tamper protection:** enable it through Intune or the Defender portal
-- ⚡ **Attack surface reduction (ASR) rules:** deploy in **audit** mode first, then review the impact before switching to block
+- 🔒 **Tamper protection:** enable it tenant-wide through Intune or the Defender portal
+- ⚡ **Attack surface reduction (ASR) rules:** deploy in **Audit** mode first to monitor telemetry and evaluate false-positive impact before switching to Block mode
+- 🌐 **Network Protection:** set to **Block** mode. It only works while Defender Antivirus is the active antivirus, so it starts protecting on day one for greenfield devices, or the day the legacy agent is removed on migrated ones. It blocks connections to malicious domains, IP addresses, and phishing URLs, and it enforces your custom indicators of compromise (IoCs) for URLs, domains, and IPs
+- 🛡️ **Microsoft Defender SmartScreen:** enable it for Edge and Windows to protect users against malicious downloads and untrusted sites
 - 🔄 **Security intelligence updates:** make sure devices can reach Microsoft update endpoints or your WSUS/MECM fallback
 
-> **💡 Architect tip:** keep ASR rules in audit mode long enough to see your real business applications in the ASR reports. I use around 14 days. Adjust to your environment.
+> **⏳ Important timing point:** ASR rules and Network Protection both need Microsoft Defender Antivirus running as the primary antivirus in **active** mode. They do not work while Defender Antivirus is passive next to the legacy product, so your custom IoC blocking in Defender is also inactive during co-existence. Keep the legacy product's own protection in place until cutover, and stage these policies before onboarding so they take effect the moment Defender becomes active. ASR audit data also only arrives **after** the legacy agent is removed.
+
+> **💡 Architect tip:** keep ASR rules in Audit mode long enough to see your real business applications in the ASR reports. I recommend at least 14 days after Defender Antivirus becomes active. Network Protection is different: in my projects I enable it in **Block** mode from the first day Defender Antivirus is active, because blocking known-bad domains, IPs, and URLs, including your own IoCs, is essential from the first day of protection.
 
 ---
 
@@ -158,11 +162,23 @@ If a device stays in passive mode after the old agent is gone, a leftover regist
 
 ---
 
+## 🚦 Step 9: Move ASR rules from Audit to Block
+
+Now that Defender Antivirus is active, the ASR Audit policies start producing real data:
+
+1. Wait through your audit period and review the ASR reports in the Defender portal.
+2. Add exclusions or fix the business applications you find, rather than leaving rules off.
+3. Move rules to Block one at a time, starting with the low-impact ones and the pilot group.
+4. Keep a rollback plan so a blocked line-of-business app can be restored quickly.
+
+---
+
 ## 🚨 Common migration pitfalls
 
 - ❌ **Removing the legacy AV too early,** before confirming the Sense service reports to the cloud
 - ❌ **Forgetting server passive mode,** which needs explicit configuration
-- ❌ **Enforcing ASR on day one,** which can break business scripts
+- ❌ **Enforcing ASR rules on day one,** which can break business scripts
+- ❌ **Expecting ASR rules or Network Protection to work during co-existence,** when Defender Antivirus is passive
 - ❌ **Skipping the pilot** and rolling straight out to production
 - ❌ **Missing uninstall keys** when launching automated uninstall jobs
 
