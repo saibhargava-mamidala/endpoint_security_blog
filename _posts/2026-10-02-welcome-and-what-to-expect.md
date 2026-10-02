@@ -1,6 +1,8 @@
 ---
 title: "Deploying Microsoft Defender XDR: Infrastructure & Migration Architecture"
-tags: [MicrosoftDefenderXdr, GreenFieldDeployment, Infrastructure, Mde, Mdi, Mdo, Mdca, Mdvm]
+tags: [MicrosoftDefenderXdr, GreenFieldDeployment, Infrastructure, MDE, MDI, MDO, MDCA, MDVM]
+series: defender
+part: 0
 ---
 
 # Deploying Microsoft Defender XDR: Infrastructure & Migration Architecture
