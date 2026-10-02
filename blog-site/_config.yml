@@ -1,8 +1,8 @@
 title: EndpointProtection_MicrosoftDefenderSeries
 description: Practical notes on endpoint security.
 author: SaiBhargava_Mamidala
-url: "https://github.com/saibhargava-mamidala/endpoint_security_blog.git"
-baseurl: "endpoint_security_blog"
+url: "https://saibhargava-mamidala.github.io"
+baseurl: "/endpoint_security_blog"
 permalink: /:title/
 plugins:
   - jekyll-feed
