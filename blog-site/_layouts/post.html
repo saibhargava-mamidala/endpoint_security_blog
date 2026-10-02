@@ -1,0 +1,27 @@
+---
+layout: default
+---
+<div class="crumbs"><a href="{{ '/' | relative_url }}">Home</a> &gt; {{ page.title }}</div>
+<article>
+  {% if page.image %}<img class="hero-img" src="{{ page.image | relative_url }}" alt="">{% endif %}
+  <div class="body">
+    <h1>{{ page.title }}</h1>
+    <div class="meta">{% if site.author_image != "" %}<img class="avatar" src="{{ site.author_image | relative_url }}" alt="">{% endif %}By {{ page.author | default: site.author }} · {{ page.date | date: "%B %-d, %Y" }} · {{ content | number_of_words | divided_by: 200 | plus: 1 }} min read</div>
+    {{ content }}
+
+    {% if page.series %}
+    {% assign parts = site.posts | where: "series", page.series | sort: "part" %}
+    <div class="note series"><strong>Parts of this series</strong>
+      <ul>{% for p in parts %}
+        <li>{% if p.url == page.url %}<strong>Part {{ p.part }}: {{ p.title }}</strong>{% else %}<a href="{{ p.url | relative_url }}">Part {{ p.part }}: {{ p.title }}</a>{% endif %}</li>
+      {% endfor %}</ul>
+    </div>
+    {% endif %}
+
+    <p class="tags">{% for t in page.tags %}<a href="{{ '/tags/' | relative_url }}#{{ t | slugify }}">{{ t }}</a>{% endfor %}</p>
+    <div class="pn">
+      {% if page.previous %}<a href="{{ page.previous.url | relative_url }}">&larr; {{ page.previous.title }}</a>{% else %}<span></span>{% endif %}
+      {% if page.next %}<a href="{{ page.next.url | relative_url }}">{{ page.next.title }} &rarr;</a>{% endif %}
+    </div>
+  </div>
+</article>

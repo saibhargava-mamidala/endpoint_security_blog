@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+{% seo %}
+{% feed_meta %}
+<link rel="icon" type="image/svg+xml" href="{{ '/assets/img/favicon.svg' | relative_url }}">
+<link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
+</head>
+<body>
+<header class="top"><div class="in">
+  <a class="logo" href="{{ '/' | relative_url }}"><img src="{{ '/assets/img/logo.svg' | relative_url }}" alt="" width="30" height="30">{{ site.title }}</a>
+  <nav aria-label="Main">
+    <a href="{{ '/' | relative_url }}">Home</a>
+    <a href="{{ '/tags/' | relative_url }}">Tags</a>
+    <a href="{{ '/feed.xml' | relative_url }}">RSS</a>
+  </nav>
+  <button id="theme" type="button" aria-label="Toggle dark mode">Dark / light</button>
+</div></header>
+<div class="wrap">
+  <main>{{ content }}</main>
+  {% include sidebar.html %}
+</div>
+<footer>© {{ 'now' | date: '%Y' }} {{ site.author }}</footer>
+<script>
+(function(){var r=document.documentElement,b=document.getElementById('theme');
+try{var s=localStorage.getItem('theme');if(s)r.setAttribute('data-theme',s)}catch(e){}
+b.addEventListener('click',function(){var d=r.getAttribute('data-theme')==='dark'||(!r.getAttribute('data-theme')&&matchMedia('(prefers-color-scheme:dark)').matches);
+var n=d?'light':'dark';r.setAttribute('data-theme',n);try{localStorage.setItem('theme',n)}catch(e){}});})();
+</script>
+</body>
+</html>
