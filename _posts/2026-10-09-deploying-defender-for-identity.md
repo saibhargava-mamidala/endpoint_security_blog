@@ -1,5 +1,5 @@
 ---
-title: "Deploying Defender for Identity: The Latest v3.x Approach and the Classic v2.x Scenario"
+title: "Deploying Defender for Identity: Sensor v3.x for New Domain Controllers and Migrating from v2.x"
 tags: [Defender-for-Identity, Active-Directory, Domain-Controllers, Identity-Security, Infrastructure]
 series: defender
 part: 2
@@ -11,41 +11,48 @@ image: /assets/img/social-part2.png
 
 In [Part 1](/endpoint_security_blog/migrating-to-defender-for-endpoint/) we moved endpoints to Defender for Endpoint. Attackers rarely stop at the endpoint, though. Sooner or later they go after identity, and in most organisations identity still runs through Active Directory.
 
-Microsoft Defender for Identity (MDI) watches your domain controllers for the signals of that attack path. It only sees what you cover, so the deployment matters. The way to deploy it has changed a lot recently, so this post covers both: the **latest v3.x approach** and the **classic v2.x scenario** you will still meet in existing environments.
+Microsoft Defender for Identity (MDI) watches your domain controllers for the signals of that attack path. It only sees what you cover, so the deployment matters, and the way to deploy it has changed. This post covers the current approach with the v3.x sensor, how to migrate existing v2.x sensors, and a short look at the classic v2.x scenario so you recognise it in older environments.
 
 > **The golden rule of MDI:** every domain controller needs a sensor. A domain controller without one is a blind spot attackers can use.
 
 ---
 
-## 🧭 Which path are you on?
+## 📝 What changed in the console
 
-| Your situation | Path |
-|---|---|
-| New deployment, domain controllers on Windows Server 2019 or later | **Path A:** sensor v3.x |
-| Existing environment with v2.x sensors | **Path B:** classic v2.x, then plan the migration to v3.x |
-| Older domain controllers, or features that still need v2.x | **Path B:** classic v2.x, if your tenant still offers it |
-| AD FS, AD CS, or Entra Connect servers that are not domain controllers | v3.x (preview at the time of writing) or v2.x |
+In the Defender portal, many tenants no longer see the option to download the v2.x sensor. In practice that leaves two routes:
 
-> **📝 Latest console update:** in the Defender portal, many tenants no longer see the option to download the v2.x sensor. In practice that leaves two routes: **existing v2.x sensors are migrated to v3.x**, and **new domain controllers are onboarded directly to v3.x**. Microsoft rolls changes out gradually, so what you see can differ between tenants. Check the Sensor management page in your own portal before you plan.
+- **Existing v2.x sensors are migrated to v3.x**
+- **New domain controllers are onboarded directly to v3.x**
 
-Microsoft's release notes change often, so check the [What's new page](https://learn.microsoft.com/defender-for-identity/whats-new) before you plan. Preview features can change before they reach general availability.
+Microsoft rolls changes out gradually, so what you see can differ between tenants. Check the **Sensor management** page in your own portal before you plan, and read the [What's new page](https://learn.microsoft.com/defender-for-identity/whats-new), because this area changes quickly and preview features can change before general availability.
 
 ---
 
-## 🚀 Path A: the latest approach (sensor v3.x)
+## 🧭 Which route applies to you?
 
-### What changed
+| Your starting point | What to do |
+|---|---|
+| New domain controllers on Windows Server 2019 or later | Activate the v3.x sensor directly |
+| Existing v2.x sensors | Migrate them to v3.x from the portal |
+| Domain controllers on older Windows Server versions | Check Microsoft's current guidance, as they may not be eligible for v3.x yet |
+| AD FS, AD CS, or Entra Connect servers that are not domain controllers | v3.x, which is in preview at the time of writing |
 
-- **Activation without Defender for Endpoint:** you can now activate the v3.x sensor on eligible domain controllers without first onboarding them to Defender for Endpoint. This is generally available for domain controllers on Windows Server 2019 or later, for **new** v3.x deployments only. It does not cover migrating existing v2.x sensors.
-- **Automatic activation and auditing:** in organisations with a licence that includes Defender for Identity, automatic v3.x activation and automatic Windows auditing are rolling out as defaults. New Defender for Endpoint customers get a workspace created automatically when an eligible identity server is found. Existing Defender for Identity customers see a notice in the portal first and can opt out.
-- **More server roles:** v3.x supports domain controllers with any identity role, and eligible AD FS, AD CS, and Entra Connect servers that are not domain controllers are covered in preview. Automatic auditing also reaches those servers.
+---
+
+## 🚀 Deploying the v3.x sensor
+
+### What's new with v3.x
+
+- **Activation without Defender for Endpoint:** you can activate the v3.x sensor on eligible domain controllers without onboarding them to Defender for Endpoint first. This is generally available for domain controllers on Windows Server 2019 or later, for **new** deployments only. It does not cover migrating existing v2.x sensors.
+- **Automatic activation and auditing:** in organisations with a licence that includes Defender for Identity, automatic v3.x activation and automatic Windows auditing are rolling out as defaults. Existing customers see a notice in the portal first and can opt out.
+- **More server roles:** v3.x supports domain controllers with any identity role, and eligible AD FS, AD CS, and Entra Connect servers that are not domain controllers are covered in preview, including automatic auditing.
 - **Higher limits:** up to 1,000 sensors per workspace.
 
 📚 Reference: [Activate the Defender for Identity sensor](https://learn.microsoft.com/defender-for-identity/deploy/activate-sensor)
 
 ### Step 1: Discover and plan
 
-List every domain controller (including read-only ones), their operating system and update level, and any AD FS, AD CS, or Entra Connect servers. Decide who owns each one and when you can change it.
+List every domain controller (including read-only ones), its operating system and update level, and any AD FS, AD CS, or Entra Connect servers. Decide who owns each one and when you can change it.
 
 ### Step 2: Check the prerequisites
 
@@ -65,71 +72,65 @@ Then run Microsoft's readiness script to find gaps early:
 
 ### Step 3: Choose how the sensor gets activated
 
-You now have two routes:
-
 - **With Defender for Endpoint:** if your servers are already onboarded as in Part 1, eligible identity servers can use that connection, including automatic activation where it applies to you.
 - **Without Defender for Endpoint:** activate the sensor on eligible domain controllers directly from the Defender portal, with no endpoint onboarding first.
 
-> **💡 Before you start:** open the **Advanced features** and **Sensor management** pages in the Defender portal and check the automatic activation setting. If you want to control when sensors appear, review it before the portal enables it for you.
+> **💡 Before you start:** open the **Advanced features** and **Sensor management** pages and check the automatic activation setting. If you want to control when sensors appear, review it before the portal enables it for you.
 
 ### Step 4: Auditing
 
-With v3.x, automatic Windows auditing applies the required auditing settings and corrects misconfigurations on existing sensors. RPC auditing is enabled automatically on recent sensor versions. Keep an eye on the health alerts, especially the one for RPC audit misconfiguration, because some advanced detections depend on it.
+With v3.x, automatic Windows auditing applies the required settings and corrects misconfigurations on existing sensors. RPC auditing is enabled automatically on recent sensor versions. Watch the health alerts, especially the one for RPC audit misconfiguration, because some advanced detections depend on it.
 
 ### Step 5: Pilot, then roll out
 
 1. Activate two or three domain controllers across different sites as a pilot.
-2. Watch the Sensor management page for health issues and check CPU and memory on those servers for a few days.
+2. Watch the Sensor management page for health issues, and check CPU and memory on those servers for a few days.
 3. Roll out to the remaining domain controllers in waves.
 4. Cover AD FS, AD CS, and Entra Connect servers once the domain controllers are healthy.
 
 ### Step 6: Verify coverage
 
-Compare the sensors listed in the portal with your inventory from Step 1, and fix any health issue straight away. A sensor with a warning is still a partial blind spot.
+Compare the sensors listed in the portal with your Step 1 inventory, and fix any health issue straight away. A sensor with a warning is still a partial blind spot.
 
 ---
 
-## 🏛️ Path B: the classic scenario (sensor v2.x)
+## 🔄 Migrating existing v2.x sensors to v3.x
 
-Many environments still run v2.x, and Microsoft continues to ship updates for it. If your portal no longer offers the v2.x download, use this path mainly to understand and migrate the sensors you already have, and put new domain controllers on v3.x. Where the download is still available, the classic deployment follows these steps.
+If you already have v2.x sensors, the supported route is migration from the Defender portal:
 
-### Step 1: Prerequisites
+1. Open **Sensor management** and look for servers marked as **Ready for migration**.
+2. For a server marked **Not ready for migration**, hover over the status to see which prerequisite is missing, fix it, and check again.
+3. Migrate a pilot group first. The v2.x sensor keeps running until the v3.x sensor is ready, and a migration takes up to about 20 minutes.
+4. Remove any group managed service account that was set up only for response actions on v2.x, because leaving it in place stops response actions from working on v3.x.
+5. Check the health alerts after each wave, including audit-related ones, and confirm every domain controller still has exactly one healthy sensor.
 
-- A Microsoft Entra tenant with a Security administrator to create the workspace
-- Windows Server 2016 or later on the server, with at least 2 cores, 6 GB of RAM, and 6 GB of free disk (10 GB recommended)
-- Time synchronized within five minutes
-- Outbound HTTPS from each sensor to the Defender for Identity cloud service (`*.atp.azure.com`), directly or through a proxy
-- Name resolution and directory ports open as documented in Microsoft's prerequisites
+Windows Server 2025 domain controllers can migrate too.
 
-### Step 2: Directory services account
+[Add your own tip here: for example, how you grouped pilots or a migration problem you hit.]
 
-The v2.x sensor needs a directory services account to read from Active Directory. A group managed service account (gMSA) is the recommended choice, with every sensor server allowed to retrieve its password. Create it before installing.
+---
 
-### Step 3: Auditing
+## 🏛️ Background: the classic v2.x scenario
 
-Configure the Windows audit policies and any required event settings on the domain controllers before the sensors go in. Use a dedicated policy rather than editing the built-in Domain Controllers policy.
+You will still meet v2.x in older environments, so it helps to know what it needed and what v3.x simplifies.
 
-### Step 4: Install
+| | Classic v2.x | v3.x |
+|---|---|---|
+| Installation | Download the installer and register it with a workspace access key | Activate the sensor from the Defender portal |
+| Credentials | A directory services account, with a group managed service account recommended | No credentials entered in the portal |
+| Auditing | Windows audit policies configured manually in advance | Automatic Windows auditing |
+| Server role coverage | Domain controllers plus AD FS, AD CS, and Entra Connect servers | Domain controllers with any identity role, and eligible non-domain-controller servers in preview |
 
-1. Create the workspace in the Defender portal and download the sensor installer, if your tenant still shows that option.
-2. Install it on a pilot domain controller during a maintenance window, using the workspace access key.
-3. For many servers, use the silent installation through your deployment tooling.
-4. Confirm the sensor service is running and the sensor appears healthy in the portal.
-
-### Step 5: Plan the move to v3.x
-
-Microsoft now supports migrating v2.x sensors to v3.x from the Defender portal. Eligible servers show as ready for migration, the v2.x sensor keeps running until v3.x is ready, and the migration takes up to about 20 minutes. Windows Server 2025 domain controllers can migrate too. Remove any gMSA that was configured only for response actions on v2.x, because leaving it in place stops response actions from working on v3.x.
-
-[Add your own tip here: for example, your pilot approach or a migration problem you hit.]
+The practical lesson: v2.x deployments were mostly about preparing accounts, audit policies, and installers. With v3.x, most of that work moves into the portal, so your effort shifts to inventory, prerequisites, and verification.
 
 ---
 
 ## 🚨 Common pitfalls
 
 - ❌ **Leaving domain controllers uncovered,** especially read-only DCs and branch sites
-- ❌ **Mixing sensor versions on one server** instead of using the supported migration
 - ❌ **Planning a fresh v2.x install** when the v2.x download no longer appears in your portal. Use v3.x for new domain controllers
 - ❌ **Treating v3.x activation without Defender for Endpoint as a migration tool,** when it only covers new deployments
+- ❌ **Leaving a gMSA from v2.x in place,** which stops response actions on v3.x
 - ❌ **Ignoring time sync,** which breaks registration and detections
 - ❌ **Missing the automatic activation notice,** then being surprised when sensors appear
 - ❌ **Skipping health alerts,** especially audit-related ones
