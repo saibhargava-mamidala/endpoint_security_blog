@@ -1,7 +1,7 @@
 ---
 title: "Hardening Defender for Office 365: A Practical Rollout Order from Email Authentication to Attack Simulation"
 tags: [Defender-for-Office-365, Email-Security, Phishing, Exchange-Online, Infrastructure]
-series: defender
+series: Defender
 part: 3
 image: /assets/img/social-part3.png
 ---
@@ -9,7 +9,7 @@ image: /assets/img/social-part3.png
 ![Part](https://img.shields.io/badge/Part-3%20of%205-0078D4?style=flat-square)
 [![LinkedIn](https://img.shields.io/badge/Connect-LinkedIn-0A66C2?style=flat-square&logo=linkedin)](https://www.linkedin.com/in/saibhargavamamidala/)
 
-In [Part 1](/endpoint_security_blog/migrating-to-defender-for-endpoint/) we covered endpoints, and in [Part 2](/endpoint_security_blog/deploying-defender-for-identity/) we covered identity. Email is the third door attackers keep knocking on, and for most organisations it is still where the first click happens.
+In [Part 1](/endpoint_security_blog/migrating-to-defender-for-endpoint/) we covered endpoints, and in [Part 2](/endpoint_security_blog/deploying-defender-for-identity/) we covered Identity. Email is the third door attackers keep knocking on, and for most organisations it is still where the first click happens.
 
 Microsoft Defender for Office 365 (MDO) adds protection on top of the built-in email security that comes with Exchange Online. The catch is that a lot of it is **not switched on by default**. This post walks through a practical order of work, so you end up with protection that is actually active instead of merely licensed.
 
@@ -122,6 +122,7 @@ In the Standard and Strict presets, almost everything is locked to the recommend
 ## 🔑 Step 4: Permissions
 
 Don't leave every admin as a Global Administrator. Give people the role that matches the job: **Security Administrator** to configure policies, **Security Operator** to work alerts and incidents, and **Security Reader** for read-only access, for example for auditors or managers. Check in the Defender portal what each role can do before you assign it.
+I would prefer custom RBAC roles from console rather than the global Entra roles.
 
 ---
 
@@ -168,7 +169,17 @@ Not every mailbox lives in Exchange Online. In a hybrid setup, Defender for Offi
 - Pilot with one mailbox in each location before you widen the rollout
 
 ---
+## 📬 Mail flow and delivery rules
 
+Policies only work well when mail reaches Microsoft 365 the right way. Check these before you tune anything.
+
+- **Mail routing:** your MX record should point to Exchange Online Protection, or to a gateway that relays inbound mail straight to it. Confirm your main domain is set up correctly in Exchange Online.
+- **Third-party gateways:** if mail passes through another service first, Defender only sees that service's IP address. Turn on **Enhanced filtering** on the inbound connector so it can find the real sender, which keeps SPF, DKIM, and DMARC checks accurate and reduces false positives.
+- **Advanced delivery:** use it sparingly for two cases: a security operations mailbox that needs to receive suspicious messages unfiltered for analysis, and the sources of approved phishing simulations.
+- **Quarantine policies:** decide what users may do with quarantined messages. Let the help desk review and release mail with the **Quarantine Administrator** role instead of full security admin rights, which follows least privilege.
+- **Licensing:** make sure every mailbox covered by your policies is licensed, including shared mailboxes.
+
+---
 ## ✅ Step 9: Verify, then keep checking
 
 - Open the **Configuration analyzer** in the Defender portal (Email & collaboration, Policies & rules, Threat policies) and compare your policies against the Standard and Strict recommendations
@@ -208,7 +219,6 @@ If only one admin knows how everything is configured, your response plan is frag
 - ❌ **Leaving all the knowledge with one admin,** with no documentation
 - ❌ **Enabling it without an integration plan** for Defender XDR, Sentinel, or your SIEM
 
-[Add one real lesson from your own MDO deployments here.]
 
 ---
 
